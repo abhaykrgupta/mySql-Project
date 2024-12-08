@@ -10,21 +10,22 @@ export default function Dashboard() {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user); // Get user data from Redux store
+  const token = useSelector((state) => state.auth.token);
   const [loading, setLoading] = useState(true); // Added loading state to prevent unnecessary redirects
 
   // Check localStorage for token and user data on page load
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
 
     // If there's token and user in localStorage and they're not already in Redux, set them
     if (token && storedUser && !user) {
       dispatch(setToken(token)); // Set the token in Redux
       dispatch(setUser(JSON.parse(storedUser))); // Set the user in Redux
-    } else if (!token || !storedUser) {
+    } else if (!token ) {
       // If no token or user in localStorage, clear Redux state (logout)
       dispatch(setToken(null));
       dispatch(setUser(null));
+      router.push("/login")
     }
 
     // Set loading to false after the above check
@@ -33,10 +34,10 @@ export default function Dashboard() {
 
   // Check if the user is authenticated and if the data is loaded
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !token) {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [token, loading, router]);
 
   // Logout function
   const logout = () => {
